@@ -70,72 +70,74 @@
 
   <!-- Scripts -->
   <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-<script>
-  const resultText = document.getElementById('resultText');
-  const resultBox = document.getElementById('resultBox');
-  const html5QrCode = new Html5Qrcode("reader");
+  <script>
+    const resultBox = document.getElementById('resultBox');
+    const resultText = document.getElementById('resultText');
+    const fileInput = document.getElementById('qrFile');
 
-  // Check for camera
-  Html5Qrcode.getCameras()
-    .then(devices => {
+    const html5QrCode = new Html5Qrcode("reader");
+
+    // Helper to display decoded result
+    function displayResult(text) {
+      resultText.innerText = text;
+      resultBox.classList.remove('d-none');
+    }
+
+    // Scan a selected file
+    function scanFile(file) {
+      html5QrCode.scanFile(file, true)
+        .then(decodedText => {
+          displayResult(decodedText);
+        })
+        .catch(err => {
+          console.error("File decode error", err);
+          displayResult("Error decoding QR image: " + err);
+        });
+    }
+
+    // Camera Scanner
+    Html5Qrcode.getCameras().then(devices => {
       if (devices.length === 0) {
-        resultText.innerText = "No cameras found.";
-        resultBox.classList.remove('d-none');
+        displayResult("No camera found");
         return;
       }
 
       const cameraId = devices[0].id;
-
       html5QrCode.start(
         cameraId,
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 }
-        },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         qrCodeMessage => {
-          resultText.innerText = qrCodeMessage;
-          resultBox.classList.remove('d-none');
-          
-          // Optional: Stop scanning after first successful read
+          displayResult(qrCodeMessage);
           html5QrCode.stop().then(() => {
-            console.log("Scanner stopped after successful read.");
-          }).catch(err => {
-            console.error("Stop failed:", err);
-          });
+            console.log("Scanner stopped after success");
+          }).catch(err => console.warn("Stop error", err));
         },
         errorMessage => {
-          // You can display scan errors here if needed
+          // Ignore scan errors
         }
       ).catch(err => {
-        resultText.innerText = "Camera start failed: " + err;
-        resultBox.classList.remove('d-none');
-      });
-    })
-    .catch(err => {
-      resultText.innerText = "Camera detection failed: " + err;
-      resultBox.classList.remove('d-none');
-    });
-
-  // File Scanner
-  document.getElementById("qrFile").addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    html5QrCode.stop().then(() => {
-      html5QrCode.clear().then(() => {
-        html5QrCode.scanFile(file, true)
-          .then(decodedText => {
-            resultText.innerText = decodedText;
-            resultBox.classList.remove('d-none');
-          })
-          .catch(err => {
-            resultText.innerText = "Error decoding image: " + err;
-            resultBox.classList.remove('d-none');
-          });
+        displayResult("Camera error: " + err);
       });
     });
-  });
-</script>
+
+    // Handle file input
+    fileInput.addEventListener("change", function () {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      // Clear file input to allow re-uploading the same file
+      fileInput.value = '';
+
+      // Stop camera if active, then scan
+      if (html5QrCode._isScanning) {
+        html5QrCode.stop()
+          .then(() => html5QrCode.clear())
+          .then(() => scanFile(file))
+          .catch(() => scanFile(file)); // Fallback
+      } else {
+        scanFile(file);
+      }
+    });
+  </script>
 </body>
 </html>
