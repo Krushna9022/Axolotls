@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>QR Code Scanner</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to right, #74ebd5, #ACB6E5);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #reader {
+      width: 100%;
+      max-width: 400px;
+      margin: 20px auto;
+    }
+
+    .scanner-container {
+      background-color: white;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      margin: auto;
+      margin-top: 50px;
+    }
+
+    .result-box {
+      background: #f8f9fa;
+      border-left: 6px solid #0d6efd;
+      padding: 20px;
+      margin-top: 20px;
+      font-size: 1.2rem;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .footer {
+      margin-top: auto;
+      padding: 20px;
+      text-align: center;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <%- include('partials/navbar') %>
+
+  <div class="scanner-container">
+    <h2 class="text-center mb-4">QR Code Scanner</h2>
+
+    <!-- Camera Scanner -->
+    <div id="reader"></div>
+
+    <!-- Upload Alternative -->
+    <div class="mt-4 text-center">
+      <label class="form-label fw-bold">Or upload a QR code image</label>
+      <input type="file" id="qrFile" accept="image/*" class="form-control w-75 mx-auto" />
+    </div>
+
+    <!-- Decoded Result -->
+    <div id="resultBox" class="result-box text-center mt-4 d-none">
+      Decoded Result: <span id="resultText" class="text-dark"></span>
+    </div>
+  </div>
+
+  <div class="footer">© <%= new Date().getFullYear() %> My QR App</div>
+
+  <!-- Scripts -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script>
+  const resultText = document.getElementById('resultText');
+  const resultBox = document.getElementById('resultBox');
+  const html5QrCode = new Html5Qrcode("reader");
+
+  // Check for camera
+  Html5Qrcode.getCameras()
+    .then(devices => {
+      if (devices.length === 0) {
+        resultText.innerText = "No cameras found.";
+        resultBox.classList.remove('d-none');
+        return;
+      }
+
+      const cameraId = devices[0].id;
+
+      html5QrCode.start(
+        cameraId,
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        qrCodeMessage => {
+          resultText.innerText = qrCodeMessage;
+          resultBox.classList.remove('d-none');
+          
+          // Optional: Stop scanning after first successful read
+          html5QrCode.stop().then(() => {
+            console.log("Scanner stopped after successful read.");
+          }).catch(err => {
+            console.error("Stop failed:", err);
+          });
+        },
+        errorMessage => {
+          // You can display scan errors here if needed
+        }
+      ).catch(err => {
+        resultText.innerText = "Camera start failed: " + err;
+        resultBox.classList.remove('d-none');
+      });
+    })
+    .catch(err => {
+      resultText.innerText = "Camera detection failed: " + err;
+      resultBox.classList.remove('d-none');
+    });
+
+  // File Scanner
+  document.getElementById("qrFile").addEventListener("change", e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    html5QrCode.stop().then(() => {
+      html5QrCode.clear().then(() => {
+        html5QrCode.scanFile(file, true)
+          .then(decodedText => {
+            resultText.innerText = decodedText;
+            resultBox.classList.remove('d-none');
+          })
+          .catch(err => {
+            resultText.innerText = "Error decoding image: " + err;
+            resultBox.classList.remove('d-none');
+          });
+      });
+    });
+  });
+</script>
+</body>
+</html>
