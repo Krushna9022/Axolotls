@@ -1,13 +1,95 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Home</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .quote-card {
+      border-radius: 10px;
+      padding: 1.5rem;
+      color: #fff;
+      margin-bottom: 1.5rem;
+    }
+    .quote-text {
+      font-size: 1.1rem;
+    }
+    .quote-author {
+      font-style: italic;
+      text-align: right;
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 <body>
-  <%- include ('partials/navbar.ejs') %>
+  <%- include('partials/navbar.ejs') %>
+
   <div class="container mt-5">
-    <h1>Welcome to the Home Page</h1>
+    <h1 class="text-center mb-4">Welcome to the Home Page</h1>
+    <p class="text-center text-muted mb-5">Get inspired with these motivational quotes.</p>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <div class="quote-card bg-primary animate__animated animate__fadeInLeft">
+          <div class="quote-text">
+            "The best way to get started is to quit talking and begin doing."
+          </div>
+          <div class="quote-author">– Walt Disney</div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="quote-card bg-success animate__animated animate__fadeInRight">
+          <div class="quote-text">
+            "Don’t let yesterday take up too much of today."
+          </div>
+          <div class="quote-author">– Will Rogers</div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="quote-card bg-warning text-dark animate__animated animate__fadeInLeft">
+          <div class="quote-text">
+            "It’s not whether you get knocked down, it’s whether you get up."
+          </div>
+          <div class="quote-author">– Vince Lombardi</div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="quote-card bg-danger animate__animated animate__fadeInRight">
+          <div class="quote-text">
+            "The harder you work for something, the greater you’ll feel when you achieve it."
+          </div>
+          <div class="quote-author">– Unknown</div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="quote-card bg-info text-dark animate__animated animate__fadeInLeft">
+          <div class="quote-text">
+            "Push yourself, because no one else is going to do it for you."
+          </div>
+          <div class="quote-author">– Unknown</div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="quote-card bg-dark animate__animated animate__fadeInRight">
+          <div class="quote-text">
+            "Success doesn’t just find you. You have to go out and get it."
+          </div>
+          <div class="quote-author">– Unknown</div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

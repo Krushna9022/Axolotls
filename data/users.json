@@ -5,5 +5,12 @@
     "username": "krushna@123",
     "email": "krushna@gamil.com",
     "password": "$2b$10$M16rftyBoUb/hI/ajjdlm.YXtpmyhY6jNLY4nEHMK1xV7xzzVaq9K"
+  },
+  {
+    "userid": 1752956388743,
+    "name": "vaibhav",
+    "username": "vaibhav@123",
+    "email": "vaibhav@gmail.com",
+    "password": "$2b$10$VW3zrYTq0jY2d2xzN0SlTuQs55TJFqB4f3gxZ8Z3W0nM0/PWvc7fy"
   }
 ]
