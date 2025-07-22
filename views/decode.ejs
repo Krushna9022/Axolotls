@@ -69,33 +69,38 @@
   <div class="footer">© <%= new Date().getFullYear() %> My QR App</div>
 
   <!-- Scripts -->
-  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-  <script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
     const resultBox = document.getElementById('resultBox');
     const resultText = document.getElementById('resultText');
     const fileInput = document.getElementById('qrFile');
 
     const html5QrCode = new Html5Qrcode("reader");
+    let isCameraRunning = false;
 
-    // Helper to display decoded result
     function displayResult(text) {
       resultText.innerText = text;
       resultBox.classList.remove('d-none');
     }
 
-    // Scan a selected file
     function scanFile(file) {
+      if (!file || !file.type.startsWith('image/')) {
+        displayResult("Please upload a valid image file.");
+        return;
+      }
+
       html5QrCode.scanFile(file, true)
         .then(decodedText => {
           displayResult(decodedText);
         })
         .catch(err => {
           console.error("File decode error", err);
-          displayResult("Error decoding QR image: " + err);
+          displayResult("Could not decode QR from image. Make sure it contains a clear QR code.");
         });
     }
 
-    // Camera Scanner
+    // Start camera
     Html5Qrcode.getCameras().then(devices => {
       if (devices.length === 0) {
         displayResult("No camera found");
@@ -109,13 +114,15 @@
         qrCodeMessage => {
           displayResult(qrCodeMessage);
           html5QrCode.stop().then(() => {
-            console.log("Scanner stopped after success");
+            isCameraRunning = false;
           }).catch(err => console.warn("Stop error", err));
         },
         errorMessage => {
-          // Ignore scan errors
+          // You can log scan failures if needed
         }
-      ).catch(err => {
+      ).then(() => {
+        isCameraRunning = true;
+      }).catch(err => {
         displayResult("Camera error: " + err);
       });
     });
@@ -125,19 +132,27 @@
       const file = fileInput.files[0];
       if (!file) return;
 
-      // Clear file input to allow re-uploading the same file
-      fileInput.value = '';
+      fileInput.value = ''; // Reset to allow same file again
 
-      // Stop camera if active, then scan
-      if (html5QrCode._isScanning) {
+      if (isCameraRunning) {
         html5QrCode.stop()
-          .then(() => html5QrCode.clear())
-          .then(() => scanFile(file))
-          .catch(() => scanFile(file)); // Fallback
+          .then(() => {
+            isCameraRunning = false;
+            return html5QrCode.clear();
+          })
+          .then(() => {
+            scanFile(file);
+          })
+          .catch(err => {
+            console.warn("Failed to stop camera before file scan:", err);
+            scanFile(file); // Try anyway
+          });
       } else {
         scanFile(file);
       }
     });
-  </script>
+  });
+</script>
+
 </body>
 </html>
